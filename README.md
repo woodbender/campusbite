@@ -21,10 +21,20 @@ This is the starting point for every team. It already has the setup done, so you
 - A passcode login that protects your app and your Gemini quota
 - A Supabase connection (server side only)
 - A Gemini agent loop with function calling: Gemini picks a tool, Zod checks the arguments, your code runs it, and the result goes back to Gemini
-- 3 example tools on a `tasks` table: `listTasks` (reads), `createTask` (writes) and `completeTask` (writes)
+- Six CampusBite tools for menu, wallet, pickup slots, orders, placing orders and cancellations
 - A chat screen that shows every tool the agent used
-- An example REST API (`/api/tasks`) and a live data list
-- Seed data for all 6 problem statements in `seed/`
+- Student and kitchen screens backed by live CampusBite API routes
+- Seed data for the CampusBite tables in `seed/`
+
+## CampusBite agent loop
+
+CampusBite keeps the Gemini model on the server and gives it six typed tools:
+four read tools for the live menu, wallet, pickup slots and student orders, plus
+database-backed order and cancellation tools. The agent reads the current data,
+checks the ordering rules, calls the `place_order` or `cancel_order` RPC when
+needed, and then turns the result into a short plain-English reply. The student
+screen refreshes wallet, orders and stock automatically, while the kitchen screen
+polls live orders and advances them through placed, preparing, ready and collected.
 
 ## Setup (about 30 minutes)
 
@@ -44,23 +54,26 @@ To check your settings, open `/api/health`. It shows which variables are missing
 
 ```
 app/
-  page.tsx               Home page: agent chat + data list   <- change
+  page.tsx               Student page: agent chat + live data
   login/page.tsx         Passcode page
   api/agent/route.ts     POST /api/agent: runs the agent
-  api/tasks/route.ts     Example REST API                    <- copy for your tables
+  api/menu/route.ts      GET live menu
+  api/me/route.ts        GET student wallet and orders
+  api/kitchen/route.ts   GET/POST kitchen orders
   api/health/route.ts    Shows which settings are missing
 components/
-  AgentChat.tsx          Chat UI that shows tool calls       <- change the sample prompts
-  TaskList.tsx           Example data list                   <- replace with your data
+  AgentChat.tsx          Chat UI that shows tool calls
+  WalletOrders.tsx       Student wallet and orders
+  MenuPanel.tsx          Live menu and stock
 lib/
-  agent/tools.ts         THE AGENT TOOLS                     <- your main work
-  agent/systemPrompt.ts  Instructions for Gemini             <- rewrite for your problem
-  agent/runAgent.ts      The agent loop (max 5 rounds)
+  agent/tools.ts         CampusBite agent tools
+  agent/systemPrompt.ts  CampusBite instructions for Gemini
+  agent/runAgent.ts      The agent loop (max 8 rounds)
   agent/defineTool.ts    Turns Zod schemas into Gemini tool declarations
   supabase.ts            Server-side Supabase client
   schemas.ts             Shared Zod schemas
 proxy.ts                 Passcode gate for every page and API
-seed/                    SQL seed data for each problem statement
+seed/                    CampusBite SQL seed data
 ```
 
 ## How to add a tool (the main hackathon work)
