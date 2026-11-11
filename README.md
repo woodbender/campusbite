@@ -131,3 +131,8 @@ Then rewrite `lib/agent/systemPrompt.ts`. Name the business user, the logged-in 
 | `ps6_job_match.sql` | PS6 Job Match Agent |
 
 All dates in the seed data are relative to today, so the data is always fresh. All names, companies and records are made up. You can run a seed file again at any time to reset your data.
+
+
+## Deployment
+
+The main branch is connected to Vercel for production deployments.
